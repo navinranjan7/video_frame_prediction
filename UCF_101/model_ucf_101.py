@@ -192,32 +192,34 @@ class OpticalModel(keras.Model):
                                   kernel_initializer=tf.keras.initializers.GlorotNormal(seed=1),
                                   activation='sigmoid')
     def call(self, optical_input, training=False):
+        # optical Encoder Block 1
         e_optical1 = self.optical_block1(optical_input, training=training)
         o_pool1 = self.optical_pool1(e_optical1, training=training)
-        ### optical Encoder Block 2
+        # optical Encoder Block 2
         e_optical2 = self.optical_block2(o_pool1, training=training)
         o_pool2 = self.optical_pool2(e_optical2, training=training)
-        ### optical Encoder Block 3
+        # optical Encoder Block 3
         e_optical3 = self.optical_block3(o_pool2, training=training)
         o_pool3 = self.optical_pool3(e_optical3, training=training)
-#        ### optical Encoder Block 4
+        # optical Encoder Block 4
         e_optical4 = self.optical_block4(o_pool3, training=training)
         o_pool4 = self.optical_pool4(e_optical4, training=training)
-        ##
+        # optical Layer 5
         e_optical5 = self.optical_block5(o_pool4, training=training)
-        ### Reshape to fit ConvLSTM2D layer
+        
+        # Reshape to fit ConvLSTM2D layer
         reshape_in = self.reshape_rnn_in(e_optical5)
-        ### Recurrent Layer
+        # Recurrent Layer
         optical_rnn1 = self.optical_rnn_block1(reshape_in, training=training)
-        ###Reshape to fit decoder block 
+        # Reshape to fit decoder block 
         optical_rnn1 = self.reshape_rnn_out(optical_rnn1)
-        ### Optical Decoder Block 4
+        # Optical Decoder Block 4
         d_optical4 = self.decode_block4(optical_rnn1, e_optical4, e_optical4, 'optical', optical_feed=False, concatenation=True, training=training)
-#        ### Optical Decoder Block 3
+        # Optical Decoder Block 3
         d_optical3 = self.decode_block3(d_optical4, e_optical3, e_optical3, 'optical', optical_feed=False, concatenation=True, training=training)
-        ### Optical Decoder Block 2
+        # Optical Decoder Block 2
         d_optical2 = self.decode_block2(d_optical3, e_optical2, e_optical2, 'optical', optical_feed=False, concatenation=True, training=training)
-        ### Optical Decoder Block 1
+        # Optical Decoder Block 1
         d_optical1 = self.decode_block1(d_optical2, e_optical1, e_optical1, 'optical', optical_feed=False, concatenation=True, training=training)
         
         # output layer
@@ -265,6 +267,7 @@ class ProposedModel(keras.Model):
     
     def call(self, inputs, training=False, training1=False):
         ''' Proposed model'''
+        # Frame Encoder Block 1
         frame1 = self.frame_block1(inputs[0], training=training)
         f_pool1 = self.frame_pool1(frame1)
         # Frame Encoder Block 2  --> 320x240
@@ -276,7 +279,7 @@ class ProposedModel(keras.Model):
         # Frame Encoder Block 4
         frame4 = self.frame_block4(f_pool3, training=training)
         f_pool4 = self.frame_pool4(frame4)
-        ##
+        # Frame Layer 5
         frame5 = self.frame_block5(f_pool4, training=training)
         
         _, d_optical4, d_optical3, d_optical2, d_optical1= self.optical_model(inputs[1], training=training1)
