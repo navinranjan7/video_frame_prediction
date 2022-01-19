@@ -431,6 +431,6 @@ def test(batch_size = 8, save_predicted_result=False):
     print(count_category)            
 #%%
 with tf.device('/gpu:3'):
-#    train_epoch() 
+    train_epoch() 
     test(save_predicted_result=True)
 #%%
